@@ -31,7 +31,19 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, "Colors must be set as hex")
 
-        if message.content.startswith('!c4 start'):
+        elif message.content == "!c4 resign":
+            try:
+                game_info = games[message.author.id]
+            except KeyError:
+                await client.send_message(message.channel, "You are not currently in a game " + message.author.mention)
+
+            opp_id = game_info['opponent'].id
+
+            del games[opp_id]
+            del games[message.author.id]
+
+
+        elif message.content.startswith('!c4 start'):
             player = message.author
             opponent = message.mentions[0]
 
@@ -50,7 +62,7 @@ async def on_message(message):
 
             await client.send_file(message.channel, file_name)
 
-        if message.content.startswith('!c4 move'):
+        elif message.content.startswith('!c4 move'):
             column = message.content[-1]
             try:
                 game_info = games[message.author.id]
