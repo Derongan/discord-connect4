@@ -4,7 +4,7 @@ from connect4.Game import Game
 from io import BytesIO
 from PIL import Image
 
-import bot.Config
+import bot.Config as Config
 
 client = discord.Client()
 
