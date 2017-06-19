@@ -10,7 +10,11 @@ class Game:
         self.board = Board()
 
     def move(self, column):
-        self.board.make_move(column)
+        if self.board.can_move(column):
+            self.board.make_move(column)
+            return True
+        else:
+            return False
 
     def check_win(self):
         return self.board.is_win()

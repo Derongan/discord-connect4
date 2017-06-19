@@ -1,8 +1,7 @@
 import discord
-import asyncio
 from connect4.Game import Game
-from io import BytesIO
-from PIL import Image
+from connect4.AI import KearneyOne
+import copy
 
 import bot.Config as Config
 
@@ -10,6 +9,8 @@ client = discord.Client()
 
 games = {}
 colors = {}
+
+ai_player = KearneyOne.KearneyOneAI()
 
 
 @client.event
@@ -36,12 +37,14 @@ async def on_message(message):
                 game_info = games[message.author.id]
             except KeyError:
                 await client.send_message(message.channel, "You are not currently in a game " + message.author.mention)
+                return
 
             opp_id = game_info['opponent'].id
 
             del games[opp_id]
             del games[message.author.id]
 
+            await client.send_message(message.channel, message.author.mention + " resigned")
 
         elif message.content.startswith('!c4 start'):
             player = message.author
@@ -52,8 +55,13 @@ async def on_message(message):
                 return
 
             game = Game()
-            games[player.id] = {'game': game, 'opponent': opponent, "team": 0}
-            games[opponent.id] = {'game': game, 'opponent': player, "team": 1}
+            games[player.id] = {'game': game, 'opponent': opponent, "team": 0, "AI": False}
+            games[opponent.id] = {'game': game, 'opponent': player, "team": 1, "AI": False}
+
+            if opponent == client.user:
+                print("But it was me, Dio!")
+                games[opponent.id]["AI"] = True
+
             # await client.send_message(message.channel, "`" + str(games[message.author]['game']) + "`")
 
             file_name = "temp/" + str(player.id) + ".png"
@@ -69,13 +77,9 @@ async def on_message(message):
             except KeyError:
                 await client.send_message(message.channel, "You are not currently in a game " + message.author.mention)
                 return
-            if game_info['game'].turn == game_info['team']:
-                if column.isdigit() and int(column) >= 0 and int(column) < 7:
-                    winner = game_info['game'].move(int(column))
-                    if winner == -1:
-                        await client.send_message(message.channel,
-                                                  "You must give a valid column " + message.author.mention)
-                    elif winner:
+            if game_info['game'].get_turn() == game_info['team']:
+                if column.isdigit() and int(column) >= 0 and int(column) < 7 and game_info['game'].move(int(column)):
+                    if game_info['game'].check_win():
                         file_name = "temp/" + str(message.author.id) + ".png"
 
                         if game_info["team"] == 0:
@@ -95,6 +99,17 @@ async def on_message(message):
                         del games[message.author.id]
 
                     else:
+                        content = ""
+                        ai_win = False
+                        if games[game_info["opponent"].id]["AI"]:
+                            ai_move = ai_player.get_move(copy.copy(game_info["game"].board))
+                            content = "AI chose column " + str(ai_move)
+                            game_info["game"].move(ai_move)
+
+                            if game_info["game"].check_win():
+                                content += ". The AI won!"
+                                ai_win = True
+
                         file_name = "temp/" + str(message.author.id) + ".png"
 
                         if game_info["team"] == 0:
@@ -106,7 +121,13 @@ async def on_message(message):
                             oc = colors.get(game_info['opponent'], "red")
                             game_info['game'].generate_image_board(oc, pc).save(file_name, "PNG")
 
-                        await client.send_file(message.channel, file_name)
+                        await client.send_file(message.channel, file_name, content=content)
+
+                        if ai_win:
+                            opp_id = game_info['opponent'].id
+
+                            del games[opp_id]
+                            del games[message.author.id]
                 else:
                     await client.send_message(message.channel, "You must give a valid column " + message.author.mention)
             else:

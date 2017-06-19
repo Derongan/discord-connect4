@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 
 # Most functions Modified from https://github.com/denkspuren/BitboardC4/blob/master/BitboardDesign.md
@@ -52,7 +53,10 @@ class Board:
         return False
 
     def can_move(self, col):
-        return self.height[col] < col * 7 + 6;
+        return self.height[col] < col * 7 + 6
+
+    def is_full(self):
+        return self.counter >= 42
 
     def __str__(self):
         res = ""
@@ -72,9 +76,20 @@ class Board:
     def __copy__(self):
         b2 = Board()
 
-        b2.height = np.copy(b2.height)
-        b2.moves = np.copy(b2.moves)
-        b2.bitboard = np.copy(b2.bitboard)
-        b2.counter = np.copy(b2.counter)
+        b2.height = np.copy(self.height)
+        b2.moves = np.copy(self.moves)
+        b2.bitboard = np.copy(self.bitboard)
+        b2.counter = np.copy(self.counter)
 
         return b2
+
+
+if __name__ == "__main__":
+    x = Board()
+    x.make_move(0)
+
+    print(x)
+
+    z = copy.copy(x)
+
+    print(z)
