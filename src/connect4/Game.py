@@ -1,34 +1,22 @@
-from connect4.Board import Board, Piece
+from connect4.BitBoard import Board
 from PIL import Image, ImageDraw
 
 from io import BytesIO
 
 
+# Essentially a wrapper for bitboard
 class Game:
     def __init__(self):
-        self.turn = 0
         self.board = Board()
 
     def move(self, column):
-        if self.turn == 0:
-            piece = Piece.RED
-        else:
-            piece = Piece.BLACK
+        self.board.make_move(column)
 
-        coords = self.board.addPiece(column, piece)
+    def check_win(self):
+        return self.board.is_win()
 
-        # Invalid move
-        if not coords:
-            return -1
-
-        # Someone won
-        if self.board.checkWin(coords[0], coords[1], piece):
-            return 1
-
-        self.turn = (self.turn + 1) % 2
-
-        # Next turn
-        return 0
+    def get_turn(self):
+        return self.board.get_turn()
 
     def __repr__(self):
         return self.board.__repr__()
@@ -36,7 +24,7 @@ class Game:
     def __str__(self):
         return self.__repr__()
 
-    def generateImageBoard(self, color1="red", color2="black"):
+    def generate_image_board(self, color1="red", color2="black"):
         im = Image.new("RGB", (256, 220), "white")
         draw = ImageDraw.Draw(im)
 
@@ -44,12 +32,12 @@ class Game:
         padding = 4
         margin = 4
 
-        for i in range(self.board.width):
-            for j in range(self.board.height):
-                if self.board.getPiece(i, j) == Piece.RED:
+        for i in range(7):
+            for j in range(6):
+                if self.board.get_at(i, 5 - j) == 1:
                     color = color1
                     outline = 'red'
-                elif self.board.getPiece(i, j) == Piece.BLACK:
+                elif self.board.get_at(i, 5 - j) == -1:
                     color = color2
                     outline = 'black'
                 else:
@@ -80,6 +68,6 @@ if __name__ == "__main__":
     game.move(0)
     print(game.move(0))
 
-    game.generateImageBoard("#0F0").show()
+    game.generate_image_board("#0F0").show()
 
     pass

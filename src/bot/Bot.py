@@ -58,7 +58,7 @@ async def on_message(message):
 
             file_name = "temp/" + str(player.id) + ".png"
 
-            game.generateImageBoard().save(file_name, "PNG")
+            game.generate_image_board().save(file_name, "PNG")
 
             await client.send_file(message.channel, file_name)
 
@@ -81,11 +81,11 @@ async def on_message(message):
                         if game_info["team"] == 0:
                             pc = colors.get(message.author, "red")
                             oc = colors.get(game_info['opponent'], "black")
-                            game_info['game'].generateImageBoard(pc, oc).save(file_name, "PNG")
+                            game_info['game'].generate_image_board(pc, oc).save(file_name, "PNG")
                         else:
                             pc = colors.get(message.author, "black")
                             oc = colors.get(game_info['opponent'], "red")
-                            game_info['game'].generateImageBoard(oc, pc).save(file_name, "PNG")
+                            game_info['game'].generate_image_board(oc, pc).save(file_name, "PNG")
 
                         await client.send_file(message.channel, file_name, content=message.author.mention + " won!")
 
@@ -100,11 +100,11 @@ async def on_message(message):
                         if game_info["team"] == 0:
                             pc = colors.get(message.author, "red")
                             oc = colors.get(game_info['opponent'], "black")
-                            game_info['game'].generateImageBoard(pc, oc).save(file_name, "PNG")
+                            game_info['game'].generate_image_board(pc, oc).save(file_name, "PNG")
                         else:
                             pc = colors.get(message.author, "black")
                             oc = colors.get(game_info['opponent'], "red")
-                            game_info['game'].generateImageBoard(oc, pc).save(file_name, "PNG")
+                            game_info['game'].generate_image_board(oc, pc).save(file_name, "PNG")
 
                         await client.send_file(message.channel, file_name)
                 else:
