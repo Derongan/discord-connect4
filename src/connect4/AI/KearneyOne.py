@@ -8,7 +8,7 @@ class KearneyOneAI():
 
     @staticmethod
     def get_move(board):
-        return KearneyOneAI.nega_max(5, board)[1]
+        return KearneyOneAI.nega_max(6, board)[1]
 
     @staticmethod
     def nega_max(depth, board: Board):
