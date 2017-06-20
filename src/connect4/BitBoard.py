@@ -1,6 +1,7 @@
 import numpy as np
 import copy
 
+ONE = np.int64(1)
 
 # Most functions Modified from https://github.com/denkspuren/BitboardC4/blob/master/BitboardDesign.md
 class Board:
@@ -18,7 +19,8 @@ class Board:
         return ((self.bitboard[0] >> (7 * x + y)) & 1) - ((self.bitboard[1] >> (7 * x + y)) & 1)
 
     def make_move(self, col):
-        move = np.left_shift(np.int64(1), self.height[col])
+        # move = np.left_shift(1, self.height[col])
+        move = 1 << self.height[col]
         self.height[col] += 1
         self.bitboard[self.counter & 1] ^= move
         self.moves[self.counter] = col
@@ -27,7 +29,7 @@ class Board:
     def undo_move(self):
         col = self.moves[self.counter - 1]
         self.counter -= 1
-        move = np.int64(1) << (self.height[col] - 1)
+        move = 1 << (self.height[col] - 1)
         self.height[col] -= 1
         self.bitboard[self.counter & 1] ^= move
 
@@ -35,19 +37,19 @@ class Board:
         b = self.bitboard[(self.counter + 1) & 1]
 
         y = b & (b >> 6)
-        if (y & (y >> 2 * 6)) != 0:  # Diag
+        if y & (y >> 2 * 6) != 0:  # Diag
             return True
 
         y = b & (b >> 7)  # Horiz
-        if (y & (y >> 2 * 7)) != 0:
+        if y & (y >> 2 * 7) != 0:
             return True
 
         y = b & (b >> 8)  # Diag 2
-        if (y & (y >> 2 * 8)) != 0:
+        if y & (y >> 2 * 8) != 0:
             return True
 
         y = b & (b >> 1)
-        if (y & (y >> 2)) != 0:  # Vert
+        if y & (y >> 2) != 0:  # Vert
             return True
 
         return False

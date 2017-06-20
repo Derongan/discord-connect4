@@ -1,4 +1,5 @@
 from connect4.BitBoard import Board
+import cProfile
 
 
 class KearneyOneAI():
@@ -35,3 +36,14 @@ class KearneyOneAI():
                 move = i
 
         return best, move
+
+
+def test():
+    b = Board()
+    ai = KearneyOneAI()
+    ai.get_move(b)
+
+
+if __name__ == "__main__":
+    cProfile.run('test()')
+
