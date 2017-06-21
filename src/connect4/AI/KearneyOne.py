@@ -12,7 +12,7 @@ class KearneyOneAI():
 
     @staticmethod
     def nega_max(depth, board: Board):
-        best = float("-inf")
+        best = -10000
         move = 3
 
         if board.is_win():  # Someone won
