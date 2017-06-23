@@ -18,6 +18,7 @@ class KearneyOneAI():
         for i in range(7):
             if board.can_move(i):
                 old_move = i
+                move = i
 
         for i in range(strength):
             score, move = KearneyOneAI.nega_max_ab(strength + 1, board)

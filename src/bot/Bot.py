@@ -17,7 +17,7 @@ async def change_color(message):
     ind = message.content.find("#")
     if ind > -1:
         color = message.content[ind:]
-        colors[message.author] = color
+        colors[message.author.id] = color
     else:
         await client.send_message(message.channel, "Colors must be set as hex")
 
@@ -49,9 +49,18 @@ async def start_game(message):
     games[player.id] = {'game': game, 'opponent': opponent, "team": 0, "AI": False}
     games[opponent.id] = {'game': game, 'opponent': player, "team": 1, "AI": False}
 
+    content = ""
+
     if opponent == client.user:
         print("But it was me, Dio!")
+        difficulty = 3
+        if message.content[-1].isdigit():
+            difficulty = int(message.content[-1])
         games[opponent.id]["AI"] = True
+        games[opponent.id]["difficulty"] = min(difficulty, 4)
+        games[player.id]["difficulty"] = min(difficulty, 4)
+
+        content = "Started game against AI with difficulty " + str(min(difficulty, 4))
 
     # await client.send_message(message.channel, "`" + str(games[message.author]['game']) + "`")
 
@@ -59,7 +68,7 @@ async def start_game(message):
 
     game.generate_image_board().save(file_name, "PNG")
 
-    await client.send_file(message.channel, file_name)
+    await client.send_file(message.channel, file_name, content=content)
 
 
 async def make_move(message):
@@ -88,7 +97,8 @@ async def make_move(message):
 
                 if games[game_info["opponent"].id]["AI"]:
                     await client.edit_message(sent, new_content="AI is thinking...")
-                    ai_move = ai_player.get_move(copy.copy(game_info["game"].board))
+                    ai_move = ai_player.get_move(copy.copy(game_info["game"].board),
+                                                 game_info["difficulty"] * 2)  # Times 2 for number ahead
                     content = "AI chose column " + str(ai_move)
                     game_info["game"].move(ai_move)
 
@@ -118,11 +128,11 @@ def end_game(aut_id):
 def render_board(aut_id, file_name):
     if games[aut_id]["team"] == 0:
         pc = colors.get(aut_id, "red")
-        oc = colors.get(games[aut_id]['opponent'], "black")
+        oc = colors.get(games[aut_id]['opponent'].id, "black")
         games[aut_id]['game'].generate_image_board(pc, oc).save(file_name, "PNG")
     else:
         pc = colors.get(aut_id, "black")
-        oc = colors.get(games[aut_id]['opponent'], "red")
+        oc = colors.get(games[aut_id]['opponent'].id, "red")
         games[aut_id]['game'].generate_image_board(oc, pc).save(file_name, "PNG")
 
 
